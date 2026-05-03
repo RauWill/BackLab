@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-gradient-to-br from-purple-50 to-blue-50 min-h-screen;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.btn-kids {
+  @apply min-h-[56px] px-6 py-3 rounded-2xl font-bold text-lg
+         transition-all duration-200 active:scale-95 cursor-pointer
+         shadow-md hover:shadow-lg;
+}

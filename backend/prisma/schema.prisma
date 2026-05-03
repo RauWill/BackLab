@@ -1,0 +1,95 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  role      Role     @default(PARENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  children  ChildProfile[]
+}
+
+enum Role {
+  PARENT
+  ADMIN
+}
+
+model ChildProfile {
+  id        Int      @id @default(autoincrement())
+  name      String
+  age       Int
+  avatar    String?
+  totalXp   Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  parentId  Int
+  parent    User     @relation(fields: [parentId], references: [id], onDelete: Cascade)
+
+  progress  ProgressRecord[]
+}
+
+model Unit {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  order       Int
+  createdAt   DateTime @default(now())
+
+  lessons     Lesson[]
+}
+
+model Lesson {
+  id        Int      @id @default(autoincrement())
+  title     String
+  order     Int
+  xpReward  Int      @default(10)
+  createdAt DateTime @default(now())
+
+  unitId    Int
+  unit      Unit     @relation(fields: [unitId], references: [id], onDelete: Cascade)
+
+  exercises Exercise[]
+  progress  ProgressRecord[]
+}
+
+model Exercise {
+  id            Int          @id @default(autoincrement())
+  type          ExerciseType
+  question      String
+  options       Json
+  correctAnswer String
+  order         Int
+
+  lessonId      Int
+  lesson        Lesson       @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+}
+
+enum ExerciseType {
+  MULTIPLE_CHOICE
+  TRUE_FALSE
+  MATCH_IMAGE
+}
+
+model ProgressRecord {
+  id          Int      @id @default(autoincrement())
+  xpEarned    Int
+  completedAt DateTime @default(now())
+
+  childId     Int
+  child       ChildProfile @relation(fields: [childId], references: [id], onDelete: Cascade)
+
+  lessonId    Int
+  lesson      Lesson   @relation(fields: [lessonId], references: [id])
+
+  @@unique([childId, lessonId])
+}
